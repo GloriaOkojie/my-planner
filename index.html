@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Planner</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0081c6">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Planner">
+<style>
+  :root{
+    --work: #f4e0d9;
+    --study: #dcecdc;
+    --union: #dde6f4;
+    --rest: #efe8f7;
+    --appt: #f6e6b4;
+    --content: #f0d9ec;
+    --family: #d9f0e8;
+    --other: #eee9e2;
+    --custom1: #d8e4f0;
+    --custom2: #f0e0d0;
+    --custom3: #dceedd;
+    --custom4: #ece0f2;
+    --custom5: #f2e8c9;
+    --custom6: #dcd6ec;
+    --pal-blue: #0081c6;
+    --pal-yellow: #ffb600;
+    --pal-pink: #d6005c;
+    --pal-maroon: #af0050;
+    --ink: #2e2a26;
+    --line: #d8d2c8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    font-family: 'Segoe UI', Georgia, serif;
+    background: #f7f9fb;
+    color: var(--ink);
+    margin:0;
+    padding: 24px 16px 60px;
+    max-width: 640px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  h1{font-size: 1.5rem; margin-bottom: 2px; color: var(--pal-blue);}
+  .sub{color:#6b6459; margin-top:0; margin-bottom: 14px; font-size:0.95rem;}
+  .palette-strip{
+    display:flex; height:6px; border-radius:4px; overflow:hidden; margin-bottom:20px;
+  }
+  .palette-strip span{flex:1;}
+  .palette-strip span:nth-child(1){background:var(--pal-blue);}
+  .palette-strip span:nth-child(2){background:var(--pal-yellow);}
+  .palette-strip span:nth-child(3){background:var(--pal-pink);}
+  .palette-strip span:nth-child(4){background:var(--pal-maroon);}
+
+  .countdown{
+    background:#fff; border:1px solid var(--line); border-left:5px solid var(--pal-yellow);
+    border-radius:10px; padding:14px 16px; margin-bottom:22px;
+  }
+  .countdown h2{font-size:1.05rem; margin:0 0 12px; color: var(--pal-maroon);}
+  .countdown-item{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:8px 0; border-bottom:1px solid var(--line);
+  }
+  .countdown-item:last-of-type{border-bottom:none;}
+  .countdown-item .cd-label{font-size:0.88rem; font-weight:600;}
+  .countdown-item .cd-date{font-size:0.75rem; color:#6b6459;}
+  .countdown-item .cd-days{font-size:0.85rem; font-weight:700; color: var(--pal-pink); white-space:nowrap;}
+  .countdown-item .del{background:none; border:none; color:#a89f8f; cursor:pointer; font-size:1rem; padding:2px 6px;}
+
+  .add-entry{
+    background:#fff; border:1px solid var(--line); border-radius:10px;
+    padding:16px; margin-bottom:24px;
+  }
+  .add-entry h2{font-size:1.05rem; margin:0 0 12px; color: var(--pal-blue);}
+  .row{display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;}
+  .row .field{flex:1; min-width:110px;}
+  .field label{font-size:0.75rem; color:#6b6459; display:block; margin-bottom:3px;}
+  .field input[type=text], .field input[type=date], .field input[type=time], .field select{
+    width:100%; padding:7px 8px; border:1px solid var(--line); border-radius:6px; font-size:0.88rem;
+    font-family:inherit;
+  }
+  .add-btn{
+    width:100%; padding:10px; border:none; border-radius:8px;
+    background:var(--pal-pink); color:#fff; font-size:0.9rem; cursor:pointer; margin-top:4px;
+  }
+
+  .legend{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;}
+  .legend span{font-size:0.72rem; padding:3px 9px; border-radius:20px; border:1px solid var(--line);}
+  .legend .work{background:var(--work);}
+  .legend .study{background:var(--study);}
+  .legend .union{background:var(--union);}
+  .legend .rest{background:var(--rest);}
+  .legend .appt{background:var(--appt);}
+  .legend .content{background:var(--content);}
+  .legend .family{background:var(--family);}
+  .legend .other{background:var(--other);}
+  .legend .custom1{background:var(--custom1);}
+  .legend .custom2{background:var(--custom2);}
+  .legend .custom3{background:var(--custom3);}
+  .legend .custom4{background:var(--custom4);}
+  .legend .custom5{background:var(--custom5);}
+  .legend .custom6{background:var(--custom6);}
+
+  .day-group{margin-bottom:18px;}
+  .day-group h3{
+    font-size:0.95rem; margin:0 0 8px; color: var(--pal-maroon);
+    border-bottom:2px solid var(--pal-yellow); padding-bottom:4px;
+  }
+  .entry{
+    display:flex; align-items:flex-start; gap:10px;
+    background:#fff; border:1px solid var(--line); border-radius:8px;
+    padding:10px 12px; margin-bottom:8px;
+  }
+  .entry .tag{
+    flex:0 0 auto; font-size:0.7rem; padding:3px 8px; border-radius:20px; margin-top:1px;
+  }
+  .entry .time{flex:0 0 60px; font-size:0.82rem; font-weight:600; color:#6b6459; margin-top:2px;}
+  .entry .main{flex:1;}
+  .entry .activity{font-size:0.9rem;}
+  .entry .meta{font-size:0.76rem; color:#6b6459; margin-top:3px; line-height:1.4;}
+  .entry .meta .icon{opacity:0.7;}
+  .entry .del{
+    flex:0 0 auto; background:none; border:none; color:#a89f8f; cursor:pointer;
+    font-size:1rem; padding:2px 6px;
+  }
+  .empty{color:#a89f8f; font-size:0.85rem; text-align:center; padding:20px 0;}
+
+  .cal-nav{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:12px;
+  }
+  .cal-nav button{
+    background:#fff; border:1px solid var(--line); border-radius:6px;
+    padding:6px 12px; font-size:0.85rem; cursor:pointer;
+  }
+  .cal-nav .month-label{font-weight:600; font-size:1rem;}
+  .cal-grid{
+    display:grid; grid-template-columns: repeat(7, 1fr); gap:4px;
+    margin-bottom:16px;
+  }
+  .cal-dow{
+    text-align:center; font-size:0.7rem; color:#6b6459; padding-bottom:4px;
+  }
+  .cal-cell{
+    background:#fff; border:1px solid var(--line); border-radius:6px;
+    min-height:56px; padding:4px; cursor:pointer; position:relative;
+  }
+  .cal-cell.empty-cell{background:transparent; border:none; cursor:default;}
+  .cal-cell.today{border:2px solid var(--pal-blue);}
+  .cal-cell.selected{background:var(--pal-pink); color:#fff;}
+  .cal-cell .num{font-size:0.78rem;}
+  .cal-dots{
+    display:flex; flex-wrap:wrap; gap:2px; margin-top:4px; position:absolute; bottom:4px; left:4px; right:4px;
+  }
+  .cal-dots .dot{
+    width:6px; height:6px; border-radius:50%;
+  }
+  .cal-dots .dot.work{background:#d9a586;}
+  .cal-dots .dot.union{background:#7f9ac9;}
+  .cal-dots .dot.study{background:#7cb392;}
+  .cal-dots .dot.content{background:#c383b0;}
+  .cal-dots .dot.appt{background:#d9b23c;}
+  .cal-dots .dot.family{background:#5cb896;}
+  .cal-dots .dot.rest{background:#a687c9;}
+  .cal-dots .dot.other{background:#a89f8f;}
+  .cal-dots .dot.custom1{background:#7396c2;}
+  .cal-dots .dot.custom2{background:#c98f5e;}
+  .cal-dots .dot.custom3{background:#6bab77;}
+  .cal-dots .dot.custom4{background:#a877c2;}
+  .cal-dots .dot.custom5{background:#c9a83e;}
+  .cal-dots .dot.custom6{background:#8b7bc2;}
+  .selected-day-heading{
+    font-size:0.95rem; font-weight:600; margin:0 0 10px;
+  }
+
+  .batch-tracker{
+    background:#fff; border:1px solid var(--line); border-radius:10px;
+    padding:14px 16px; margin-top:24px;
+  }
+  .batch-tracker h2{font-size:1.05rem; margin-top:0; color: var(--pal-blue);}
+  .idea-item, .check-item{
+    display:flex; align-items:center; gap:8px;
+    padding:7px 0; border-bottom:1px solid var(--line);
+  }
+  .idea-item:last-of-type, .check-item:last-of-type{border-bottom:none;}
+  .idea-item input[type=checkbox], .check-item input[type=checkbox]{
+    width:16px; height:16px; flex:0 0 auto;
+  }
+  .idea-item .txt, .check-item .txt{flex:1; font-size:0.88rem;}
+  .idea-item .txt.done, .check-item .txt.done{text-decoration:line-through; color:#a89f8f;}
+  .platform-tag{
+    flex:0 0 auto; font-size:0.68rem; padding:2px 8px; border-radius:20px;
+    background:var(--custom1); color:var(--ink);
+  }
+  .idea-item .del, .check-item .del{
+    flex:0 0 auto; background:none; border:none; color:#a89f8f; cursor:pointer; font-size:1rem; padding:2px 6px;
+  }
+  .add-idea-row, .add-check-row{
+    display:flex; gap:6px; margin-top:10px; flex-wrap:wrap;
+  }
+  .add-idea-row input[type=text], .add-check-row input[type=text]{
+    flex:1; min-width:120px; padding:7px 8px; border:1px solid var(--line); border-radius:6px; font-size:0.88rem;
+  }
+  .add-idea-row select{
+    padding:7px 8px; border:1px solid var(--line); border-radius:6px; font-size:0.85rem;
+  }
+  .add-idea-row button, .add-check-row button{
+    padding:7px 14px; border:none; border-radius:6px; background:var(--pal-pink); color:#fff; font-size:0.85rem; cursor:pointer;
+  }
+  .clear-checked{
+    margin-top:8px; background:none; border:1px solid var(--line); padding:5px 12px; border-radius:20px;
+    font-size:0.75rem; color:#6b6459; cursor:pointer;
+  }
+
+  .reset{margin-top:24px; text-align:center;}
+  .reset button{
+    background:none; border:1px solid var(--line); padding:8px 16px; border-radius:20px;
+    font-size:0.8rem; color:#6b6459; cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<h1>My Planner</h1>
+<p class="sub">The one place your schedule can't talk its way out of anything.</p>
+<div class="palette-strip"><span></span><span></span><span></span><span></span></div>
+
+<div class="countdown" id="countdownSection">
+  <h2>⏳ Countdown Clock</h2>
+  <div id="countdownList"></div>
+  <div class="row" style="margin-top:10px; margin-bottom:0;">
+    <div class="field" style="flex:2;">
+      <label>Event name</label>
+      <input type="text" id="newCountdownLabel" placeholder="e.g. Exam, Half term, Conference">
+    </div>
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="newCountdownDate">
+    </div>
+  </div>
+  <button class="add-btn" onclick="addCountdown()">+ Add countdown</button>
+</div>
+
+<div class="add-entry">
+  <h2>Add to planner</h2>
+  <div class="row">
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="newDate">
+    </div>
+    <div class="field">
+      <label>Time</label>
+      <input type="time" id="newTime">
+    </div>
+  </div>
+  <div class="row">
+    <div class="field" style="flex:2;">
+      <label>Activity</label>
+      <input type="text" id="newActivity" placeholder="e.g. Night shift, GP appointment, Study Ch.4">
+    </div>
+    <div class="field">
+      <label>Category</label>
+      <select id="newCategory"></select>
+    </div>
+  </div>
+  <div class="row">
+    <div class="field">
+      <label>Location (optional)</label>
+      <input type="text" id="newLocation" placeholder="e.g. Musgrove Park Hospital">
+    </div>
+  </div>
+  <div class="row">
+    <div class="field">
+      <label>Notes (optional)</label>
+      <input type="text" id="newNotes" placeholder="e.g. bring ID badge, ask about rota swap">
+    </div>
+  </div>
+  <div class="row" style="align-items:center;">
+    <div class="field" style="flex:0 0 auto; display:flex; align-items:center; gap:6px;">
+      <input type="checkbox" id="repeatWeekly" style="width:auto;" onchange="toggleRepeatWeeks()">
+      <label style="margin:0;" for="repeatWeekly">Repeat weekly</label>
+    </div>
+    <div class="field" id="repeatWeeksField" style="display:none; flex:0 0 120px;">
+      <label>For how many weeks</label>
+      <input type="text" id="repeatWeeks" placeholder="e.g. 6">
+    </div>
+  </div>
+  <button class="add-btn" id="addBtn" onclick="addEntry()">+ Add</button>
+</div>
+
+<div class="legend" id="legendMount"></div>
+
+<div style="text-align:center; margin-bottom:22px;">
+  <button onclick="toggleManageCategories()" style="background:none; border:1px solid var(--line); padding:6px 14px; border-radius:20px; font-size:0.78rem; color:#6b6459; cursor:pointer;" id="manageCatToggle">Manage categories</button>
+</div>
+
+<div class="add-entry" id="manageCategoriesPanel" style="display:none;">
+  <h2>Manage categories</h2>
+  <div id="categoryManageList"></div>
+  <div class="row" style="margin-top:6px;">
+    <div class="field" style="flex:2;">
+      <input type="text" id="newCatName" placeholder="New category name">
+    </div>
+    <div class="field" style="flex:0 0 auto;">
+      <button class="add-btn" style="width:auto; padding:7px 14px;" onclick="addCategory()">+ Add category</button>
+    </div>
+  </div>
+</div>
+
+<div class="add-entry" style="padding:12px 16px;">
+  <div class="row" style="margin-bottom:0; align-items:center;">
+    <div class="field">
+      <label>View</label>
+      <select id="viewMode" onchange="renderEntries()">
+        <option value="week">This week</option>
+        <option value="month">This month</option>
+        <option value="all" selected>All upcoming</option>
+        <option value="calendar">Calendar view</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div id="calendarView" style="display:none;"></div>
+<div id="entryList"></div>
+
+<div class="batch-tracker">
+  <h2>💡 Content Idea Bank</h2>
+  <div id="ideaList"></div>
+  <div class="add-idea-row">
+    <input type="text" id="newIdeaText" placeholder="e.g. AI editing tip">
+    <select id="newIdeaPlatform">
+      <option value="Any">Any</option>
+      <option value="TikTok">TikTok</option>
+      <option value="Instagram">Instagram</option>
+      <option value="YouTube">YouTube</option>
+    </select>
+    <button onclick="addIdea()">+ Add idea</button>
+  </div>
+</div>
+
+<div class="batch-tracker">
+  <h2>✅ Batch Day Checklist</h2>
+  <div id="checklistItemsMount"></div>
+  <div class="add-check-row">
+    <input type="text" id="newCheckText" placeholder="e.g. Film clip 1, Edit, Schedule posts">
+    <button onclick="addCheckItem()">+ Add task</button>
+  </div>
+  <button class="clear-checked" onclick="clearCheckedItems()">Clear completed tasks</button>
+</div>
+
+<div class="reset">
+  <button onclick="resetAll()">Clear all entries</button>
+</div>
+
+<script>
+let entries = [];
+let idCounter = 0;
+let editingId = null;
+let calMonth = new Date().getMonth();
+let calYear = new Date().getFullYear();
+let selectedDate = null;
+
+let countdownEvents = [
+  { id: 0, label: 'Exam', date: '2026-11-05' }
+];
+let countdownIdCounter = 1;
+
+let contentIdeas = [];
+let ideaIdCounter = 0;
+let checklistItems = [];
+let checkIdCounter = 0;
+
+let categories = [
+  { key: 'work', label: 'Work shift', color: 'work' },
+  { key: 'union', label: 'Union rep', color: 'union' },
+  { key: 'study', label: 'Study', color: 'study' },
+  { key: 'content', label: 'Content creation', color: 'content' },
+  { key: 'appt', label: 'Appointment', color: 'appt' },
+  { key: 'family', label: 'Family', color: 'family' },
+  { key: 'rest', label: 'Rest', color: 'rest' },
+  { key: 'other', label: 'Other', color: 'other' }
+];
+const CUSTOM_COLOR_POOL = ['custom1','custom2','custom3','custom4','custom5','custom6'];
+let customColorCursor = 0;
+
+const STORAGE_KEY = 'gloria-planner-data';
+
+function saveToStorage(){
+  try{
+    const data = {
+      entries: entries,
+      idCounter: idCounter,
+      categories: categories,
+      customColorCursor: customColorCursor,
+      countdownEvents: countdownEvents,
+      countdownIdCounter: countdownIdCounter,
+      contentIdeas: contentIdeas,
+      ideaIdCounter: ideaIdCounter,
+      checklistItems: checklistItems,
+      checkIdCounter: checkIdCounter
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }catch(err){
+    console.error('Could not save planner data:', err);
+  }
+}
+
+function loadFromStorage(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const data = JSON.parse(raw);
+    entries = data.entries || [];
+    idCounter = data.idCounter || 0;
+    if(data.categories && data.categories.length) categories = data.categories;
+    customColorCursor = data.customColorCursor || 0;
+    if(data.countdownEvents && data.countdownEvents.length){
+      countdownEvents = data.countdownEvents;
+      countdownIdCounter = data.countdownIdCounter || countdownEvents.length;
+    } else if(data.examDate){
+      // migrate old single exam-date format
+      countdownEvents = [{ id: 0, label: 'Exam', date: data.examDate }];
+      countdownIdCounter = 1;
+    }
+    if(data.contentIdeas){
+      contentIdeas = data.contentIdeas;
+      ideaIdCounter = data.ideaIdCounter || contentIdeas.length;
+    } else if(data.batchNotes){
+      // migrate old free-text batch notes into a single idea
+      contentIdeas = [{ id: 0, text: data.batchNotes, platform: 'Any', done: false }];
+      ideaIdCounter = 1;
+    }
+    if(data.checklistItems){
+      checklistItems = data.checklistItems;
+      checkIdCounter = data.checkIdCounter || checklistItems.length;
+    }
+  }catch(err){
+    console.error('Could not load planner data:', err);
+  }
+}
+
+function fmtDateHeader(dateStr){
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString(undefined, { weekday:'long', day:'numeric', month:'long' });
+}
+
+function fmtTime(t){
+  if(!t) return '';
+  const [h,m] = t.split(':');
+  const hour = parseInt(h,10);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const h12 = ((hour + 11) % 12) + 1;
+  return `${h12}:${m} ${ampm}`;
+}
+
+function toggleRepeatWeeks(){
+  const checked = document.getElementById('repeatWeekly').checked;
+  document.getElementById('repeatWeeksField').style.display = checked ? 'block' : 'none';
+}
+
+function getCategoryLabel(key){
+  const cat = categories.find(c => c.key === key);
+  return cat ? cat.label : key;
+}
+
+function getCategoryColor(key){
+  const cat = categories.find(c => c.key === key);
+  return cat ? cat.color : 'other';
+}
+
+function populateCategorySelect(){
+  const select = document.getElementById('newCategory');
+  const prevValue = select.value;
+  select.innerHTML = categories.map(c => `<option value="${c.key}">${c.label.replace(/</g,'&lt;')}</option>`).join('');
+  if(categories.some(c => c.key === prevValue)) select.value = prevValue;
+}
+
+function populateLegend(){
+  const mount = document.getElementById('legendMount');
+  mount.innerHTML = categories.map(c => `<span class="${c.color}">${c.label.replace(/</g,'&lt;')}</span>`).join('');
+}
+
+function populateManageCategories(){
+  const list = document.getElementById('categoryManageList');
+  list.innerHTML = categories.map(c => `
+    <div class="row" style="align-items:center;">
+      <div class="field" style="flex:0 0 16px; padding-top:6px;">
+        <span class="${c.color}" style="display:inline-block; width:14px; height:14px; border-radius:50%;"></span>
+      </div>
+      <div class="field" style="flex:2;">
+        <input type="text" value="${c.label.replace(/"/g,'&quot;')}" onchange="renameCategory('${c.key}', this.value)">
+      </div>
+      <div class="field" style="flex:0 0 auto;">
+        <button class="del" onclick="deleteCategory('${c.key}')" title="Delete" ${c.key === 'other' ? 'disabled style="opacity:0.3;"' : ''}>✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function refreshCategoryUI(){
+  populateCategorySelect();
+  populateLegend();
+  populateManageCategories();
+}
+
+function toggleManageCategories(){
+  const panel = document.getElementById('manageCategoriesPanel');
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  document.getElementById('manageCatToggle').textContent = isOpen ? 'Manage categories' : 'Hide category settings';
+}
+
+function renameCategory(key, newLabel){
+  newLabel = newLabel.trim();
+  if(!newLabel) return;
+  const cat = categories.find(c => c.key === key);
+  if(cat) cat.label = newLabel;
+  saveToStorage();
+  refreshCategoryUI();
+  renderEntries();
+}
+
+function deleteCategory(key){
+  if(key === 'other') return;
+  if(categories.length <= 1) return;
+  const inUse = entries.filter(e => e.category === key).length;
+  const msg = inUse > 0
+    ? `Delete this category? ${inUse} activity(ies) using it will be moved to "Other".`
+    : 'Delete this category?';
+  if(!confirm(msg)) return;
+
+  categories = categories.filter(c => c.key !== key);
+  entries.forEach(e => { if(e.category === key) e.category = 'other'; });
+  saveToStorage();
+  refreshCategoryUI();
+  renderEntries();
+}
+
+function addCategory(){
+  const input = document.getElementById('newCatName');
+  const label = input.value.trim();
+  if(!label) return;
+
+  let key = 'cat_' + label.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+  if(!key || key === 'cat_' || categories.some(c => c.key === key)) key = 'cat_' + Date.now();
+
+  const color = CUSTOM_COLOR_POOL[customColorCursor % CUSTOM_COLOR_POOL.length];
+  customColorCursor++;
+
+  categories.push({ key, label, color });
+  input.value = '';
+  saveToStorage();
+  refreshCategoryUI();
+}
+
+function addEntry(){
+  const date = document.getElementById('newDate').value;
+  const time = document.getElementById('newTime').value;
+  const activity = document.getElementById('newActivity').value.trim();
+  const category = document.getElementById('newCategory').value;
+  const location = document.getElementById('newLocation').value.trim();
+  const notes = document.getElementById('newNotes').value.trim();
+
+  if(!date || !activity){
+    alert('Please add at least a date and activity.');
+    return;
+  }
+
+  // Editing an existing entry, just update it, no repeat logic
+  if(editingId !== null){
+    const entry = entries.find(e => e.id === editingId);
+    if(entry){
+      entry.date = date;
+      entry.time = time;
+      entry.activity = activity;
+      entry.category = category;
+      entry.location = location;
+      entry.notes = notes;
+    }
+    cancelEdit();
+    saveToStorage();
+    renderEntries();
+    return;
+  }
+
+  const repeat = document.getElementById('repeatWeekly').checked;
+  const weeksRaw = document.getElementById('repeatWeeks').value.trim();
+
+  let weeks = 1;
+  if(repeat){
+    const parsed = parseInt(weeksRaw, 10);
+    if(!parsed || parsed < 1){
+      alert('Please enter how many weeks to repeat for.');
+      return;
+    }
+    weeks = parsed;
+  }
+
+  const base = new Date(date + 'T00:00:00');
+  for(let i = 0; i < weeks; i++){
+    const d = new Date(base);
+    d.setDate(d.getDate() + i * 7);
+    const dateStr = d.toISOString().slice(0,10);
+    entries.push({ id: idCounter++, date: dateStr, time, activity, category, location, notes });
+  }
+
+  clearForm();
+  saveToStorage();
+  renderEntries();
+}
+
+function clearForm(){
+  document.getElementById('newActivity').value = '';
+  document.getElementById('newTime').value = '';
+  document.getElementById('newLocation').value = '';
+  document.getElementById('newNotes').value = '';
+  document.getElementById('repeatWeekly').checked = false;
+  document.getElementById('repeatWeeks').value = '';
+  toggleRepeatWeeks();
+}
+
+function editEntry(id){
+  const entry = entries.find(e => e.id === id);
+  if(!entry) return;
+
+  editingId = id;
+  document.getElementById('newDate').value = entry.date;
+  document.getElementById('newTime').value = entry.time || '';
+  document.getElementById('newActivity').value = entry.activity;
+  document.getElementById('newCategory').value = entry.category;
+  document.getElementById('newLocation').value = entry.location || '';
+  document.getElementById('newNotes').value = entry.notes || '';
+
+  document.getElementById('repeatWeekly').checked = false;
+  document.getElementById('repeatWeekly').disabled = true;
+  toggleRepeatWeeks();
+
+  const btn = document.getElementById('addBtn');
+  btn.textContent = '✓ Save changes';
+  btn.insertAdjacentHTML('afterend', '<button class="add-btn" id="cancelEditBtn" style="background:#fff; color:#6b6459; border:1px solid var(--line); margin-top:8px;" onclick="cancelEdit()">Cancel edit</button>');
+
+  document.querySelector('.add-entry').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function cancelEdit(){
+  editingId = null;
+  clearForm();
+  document.getElementById('repeatWeekly').disabled = false;
+  const btn = document.getElementById('addBtn');
+  btn.textContent = '+ Add';
+  const cancelBtn = document.getElementById('cancelEditBtn');
+  if(cancelBtn) cancelBtn.remove();
+}
+
+function deleteEntry(id){
+  entries = entries.filter(e => e.id !== id);
+  if(editingId === id) cancelEdit();
+  saveToStorage();
+  renderEntries();
+}
+
+function getViewRange(){
+  const mode = document.getElementById('viewMode').value;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  if(mode === 'week'){
+    const dow = today.getDay(); // 0 = Sunday
+    const mondayOffset = dow === 0 ? -6 : 1 - dow;
+    const start = new Date(today);
+    start.setDate(start.getDate() + mondayOffset);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 6);
+    return { start, end };
+  }
+  if(mode === 'month'){
+    const start = new Date(today.getFullYear(), today.getMonth(), 1);
+    const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    return { start, end };
+  }
+  return null; // all upcoming
+}
+
+function changeMonth(delta){
+  calMonth += delta;
+  if(calMonth < 0){ calMonth = 11; calYear--; }
+  if(calMonth > 11){ calMonth = 0; calYear++; }
+  renderEntries();
+}
+
+function selectDay(dateStr){
+  selectedDate = dateStr;
+  renderEntries();
+}
+
+function toDateStr(y,m,d){
+  const mm = String(m+1).padStart(2,'0');
+  const dd = String(d).padStart(2,'0');
+  return `${y}-${mm}-${dd}`;
+}
+
+function renderCalendar(){
+  const calContainer = document.getElementById('calendarView');
+  const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const todayStr = toDateStr(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+
+  const firstDay = new Date(calYear, calMonth, 1);
+  const startDow = (firstDay.getDay() + 6) % 7; // Monday = 0
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+  // map date -> set of category colors present
+  const dayCategories = {};
+  entries.forEach(e => {
+    if(!dayCategories[e.date]) dayCategories[e.date] = new Set();
+    dayCategories[e.date].add(getCategoryColor(e.category));
+  });
+
+  let html = `
+    <div class="cal-nav">
+      <button onclick="changeMonth(-1)">‹ Prev</button>
+      <span class="month-label">${monthNames[calMonth]} ${calYear}</span>
+      <button onclick="changeMonth(1)">Next ›</button>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-dow">Mon</div><div class="cal-dow">Tue</div><div class="cal-dow">Wed</div>
+      <div class="cal-dow">Thu</div><div class="cal-dow">Fri</div><div class="cal-dow">Sat</div><div class="cal-dow">Sun</div>
+  `;
+
+  for(let i=0; i<startDow; i++){
+    html += `<div class="cal-cell empty-cell"></div>`;
+  }
+
+  for(let d=1; d<=daysInMonth; d++){
+    const dateStr = toDateStr(calYear, calMonth, d);
+    const isToday = dateStr === todayStr;
+    const isSelected = dateStr === selectedDate;
+    const cats = dayCategories[dateStr];
+    let dotsHtml = '';
+    if(cats){
+      dotsHtml = '<div class="cal-dots">' + [...cats].map(c => `<span class="dot ${c}"></span>`).join('') + '</div>';
+    }
+    html += `
+      <div class="cal-cell ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}" onclick="selectDay('${dateStr}')">
+        <div class="num">${d}</div>
+        ${dotsHtml}
+      </div>
+    `;
+  }
+
+  html += `</div>`;
+  calContainer.innerHTML = html;
+}
+
+function renderSelectedDayEntries(){
+  const container = document.getElementById('entryList');
+  container.innerHTML = '';
+
+  if(!selectedDate){
+    container.innerHTML = "<div class=\"empty\">Tap a day with dots to see what's booked, or any day to add something new.</div>";
+    return;
+  }
+
+  const dayEntries = entries
+    .filter(e => e.date === selectedDate)
+    .sort((a,b) => (a.time || '').localeCompare(b.time || ''));
+
+  const heading = document.createElement('div');
+  heading.className = 'selected-day-heading';
+  heading.textContent = fmtDateHeader(selectedDate);
+  container.appendChild(heading);
+
+  if(dayEntries.length === 0){
+    container.innerHTML += '<div class="empty">Nothing booked this day.</div>';
+    return;
+  }
+
+  const group = document.createElement('div');
+  dayEntries.forEach(e => {
+    const row = document.createElement('div');
+    row.className = 'entry';
+    const metaParts = [];
+    if(e.location) metaParts.push(`<span class="icon">📍</span> ${e.location.replace(/</g,'&lt;')}`);
+    if(e.notes) metaParts.push(`<span class="icon">📝</span> ${e.notes.replace(/</g,'&lt;')}`);
+    const metaHtml = metaParts.length ? `<div class="meta">${metaParts.join(' &nbsp;·&nbsp; ')}</div>` : '';
+    row.innerHTML = `
+      <span class="tag ${getCategoryColor(e.category)}">${getCategoryLabel(e.category)}</span>
+      <span class="time">${fmtTime(e.time)}</span>
+      <div class="main">
+        <div class="activity">${e.activity.replace(/</g,'&lt;')}</div>
+        ${metaHtml}
+      </div>
+      <button class="del" onclick="editEntry(${e.id})" title="Edit">✎</button>
+      <button class="del" onclick="deleteEntry(${e.id})" title="Delete">✕</button>
+    `;
+    group.appendChild(row);
+  });
+  container.appendChild(group);
+}
+
+function renderEntries(){
+  const container = document.getElementById('entryList');
+  const calContainer = document.getElementById('calendarView');
+  const mode = document.getElementById('viewMode').value;
+
+  if(mode === 'calendar'){
+    calContainer.style.display = 'block';
+    renderCalendar();
+    renderSelectedDayEntries();
+    return;
+  }
+
+  calContainer.style.display = 'none';
+  container.innerHTML = '';
+
+  const range = getViewRange();
+  let visible = entries;
+  if(range){
+    visible = entries.filter(e => {
+      const d = new Date(e.date + 'T00:00:00');
+      return d >= range.start && d <= range.end;
+    });
+  }
+
+  // List views only show upcoming (today onward). Past entries stay visible in Calendar view for reference
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  visible = visible.filter(e => new Date(e.date + 'T00:00:00') >= today);
+
+  if(visible.length === 0){
+    container.innerHTML = '<div class="empty">No upcoming entries in this view. Add your shifts, study blocks and appointments above.</div>';
+    return;
+  }
+
+  const sorted = [...visible].sort((a,b) => {
+    if(a.date !== b.date) return a.date.localeCompare(b.date);
+    return (a.time || '').localeCompare(b.time || '');
+  });
+
+  const grouped = {};
+  sorted.forEach(e => {
+    if(!grouped[e.date]) grouped[e.date] = [];
+    grouped[e.date].push(e);
+  });
+
+  Object.keys(grouped).forEach(date => {
+    const group = document.createElement('div');
+    group.className = 'day-group';
+    group.innerHTML = `<h3>${fmtDateHeader(date)}</h3>`;
+
+    grouped[date].forEach(e => {
+      const row = document.createElement('div');
+      row.className = 'entry';
+      const metaParts = [];
+      if(e.location) metaParts.push(`<span class="icon">📍</span> ${e.location.replace(/</g,'&lt;')}`);
+      if(e.notes) metaParts.push(`<span class="icon">📝</span> ${e.notes.replace(/</g,'&lt;')}`);
+      const metaHtml = metaParts.length ? `<div class="meta">${metaParts.join(' &nbsp;·&nbsp; ')}</div>` : '';
+      row.innerHTML = `
+        <span class="tag ${getCategoryColor(e.category)}">${getCategoryLabel(e.category)}</span>
+        <span class="time">${fmtTime(e.time)}</span>
+        <div class="main">
+          <div class="activity">${e.activity.replace(/</g,'&lt;')}</div>
+          ${metaHtml}
+        </div>
+        <button class="del" onclick="editEntry(${e.id})" title="Edit">✎</button>
+        <button class="del" onclick="deleteEntry(${e.id})" title="Delete">✕</button>
+      `;
+      group.appendChild(row);
+    });
+
+    container.appendChild(group);
+  });
+}
+
+function resetAll(){
+  if(confirm('Clear all entries?')){
+    entries = [];
+    saveToStorage();
+    renderEntries();
+  }
+}
+
+function renderCountdowns(){
+  const list = document.getElementById('countdownList');
+  if(countdownEvents.length === 0){
+    list.innerHTML = '<div class="empty">No countdowns yet. Add one below.</div>';
+    return;
+  }
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const sorted = [...countdownEvents].sort((a,b) => a.date.localeCompare(b.date));
+
+  list.innerHTML = sorted.map(ev => {
+    const evDate = new Date(ev.date + 'T00:00:00');
+    const diffDays = Math.ceil((evDate - today) / (1000*60*60*24));
+    let daysText;
+    if(diffDays > 1) daysText = `${diffDays} days to go`;
+    else if(diffDays === 1) daysText = 'Tomorrow';
+    else if(diffDays === 0) daysText = "Today";
+    else daysText = 'Passed';
+    const niceDate = evDate.toLocaleDateString(undefined, { day:'numeric', month:'short', year:'numeric' });
+    return `
+      <div class="countdown-item">
+        <div>
+          <div class="cd-label">${ev.label.replace(/</g,'&lt;')}</div>
+          <div class="cd-date">${niceDate}</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="cd-days">${daysText}</span>
+          <button class="del" onclick="deleteCountdown(${ev.id})" title="Remove">✕</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function addCountdown(){
+  const labelInput = document.getElementById('newCountdownLabel');
+  const dateInput = document.getElementById('newCountdownDate');
+  const label = labelInput.value.trim();
+  const date = dateInput.value;
+
+  if(!label || !date){
+    alert('Please add both a name and a date for the countdown.');
+    return;
+  }
+
+  countdownEvents.push({ id: countdownIdCounter++, label, date });
+  labelInput.value = '';
+  dateInput.value = '';
+  saveToStorage();
+  renderCountdowns();
+}
+
+function deleteCountdown(id){
+  countdownEvents = countdownEvents.filter(ev => ev.id !== id);
+  saveToStorage();
+  renderCountdowns();
+}
+
+function renderIdeas(){
+  const list = document.getElementById('ideaList');
+  if(contentIdeas.length === 0){
+    list.innerHTML = '<div class="empty">No ideas yet. Drop one in any time, even outside a batch day.</div>';
+    return;
+  }
+  const sorted = [...contentIdeas].sort((a,b) => (a.done === b.done) ? 0 : (a.done ? 1 : -1));
+  list.innerHTML = sorted.map(idea => `
+    <div class="idea-item">
+      <input type="checkbox" ${idea.done ? 'checked' : ''} onchange="toggleIdea(${idea.id})">
+      <span class="txt ${idea.done ? 'done' : ''}">${idea.text.replace(/</g,'&lt;')}</span>
+      <span class="platform-tag">${idea.platform}</span>
+      <button class="del" onclick="deleteIdea(${idea.id})">✕</button>
+    </div>
+  `).join('');
+}
+
+function addIdea(){
+  const textInput = document.getElementById('newIdeaText');
+  const platformSelect = document.getElementById('newIdeaPlatform');
+  const text = textInput.value.trim();
+  if(!text) return;
+  contentIdeas.push({ id: ideaIdCounter++, text, platform: platformSelect.value, done: false });
+  textInput.value = '';
+  saveToStorage();
+  renderIdeas();
+}
+
+function toggleIdea(id){
+  const idea = contentIdeas.find(i => i.id === id);
+  if(idea) idea.done = !idea.done;
+  saveToStorage();
+  renderIdeas();
+}
+
+function deleteIdea(id){
+  contentIdeas = contentIdeas.filter(i => i.id !== id);
+  saveToStorage();
+  renderIdeas();
+}
+
+function renderChecklist(){
+  const list = document.getElementById('checklistItemsMount');
+  if(checklistItems.length === 0){
+    list.innerHTML = '<div class="empty">No tasks yet. Add what you need to get through this batch day.</div>';
+    return;
+  }
+  list.innerHTML = checklistItems.map(item => `
+    <div class="check-item">
+      <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleCheckItem(${item.id})">
+      <span class="txt ${item.done ? 'done' : ''}">${item.text.replace(/</g,'&lt;')}</span>
+      <button class="del" onclick="deleteCheckItem(${item.id})">✕</button>
+    </div>
+  `).join('');
+}
+
+function addCheckItem(){
+  const input = document.getElementById('newCheckText');
+  const text = input.value.trim();
+  if(!text) return;
+  checklistItems.push({ id: checkIdCounter++, text, done: false });
+  input.value = '';
+  saveToStorage();
+  renderChecklist();
+}
+
+function toggleCheckItem(id){
+  const item = checklistItems.find(i => i.id === id);
+  if(item) item.done = !item.done;
+  saveToStorage();
+  renderChecklist();
+}
+
+function deleteCheckItem(id){
+  checklistItems = checklistItems.filter(i => i.id !== id);
+  saveToStorage();
+  renderChecklist();
+}
+
+function clearCheckedItems(){
+  checklistItems = checklistItems.filter(i => !i.done);
+  saveToStorage();
+  renderChecklist();
+}
+
+loadFromStorage();
+refreshCategoryUI();
+renderCountdowns();
+renderIdeas();
+renderChecklist();
+if(!selectedDate) selectedDate = toDateStr(calYear, calMonth, new Date().getDate());
+renderEntries();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch((err) => {
+      console.error('Service worker registration failed:', err);
+    });
+  });
+}
+
+</script>
+
+</body>
+</html>
