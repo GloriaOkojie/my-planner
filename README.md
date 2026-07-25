@@ -1,6 +1,7 @@
 # 📋 My Planner
 
-A planner built for real life: shift work, union duties, study deadlines, family, and content creation, all in one place.
+A planner built for tracking: work, appointments, study deadlines, family, and content creation, all in one place.
+
 
 **[Open the live planner →](gloriaokojie.github.io/my-planner)** 
 
