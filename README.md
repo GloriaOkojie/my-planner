@@ -3,7 +3,7 @@
 A planner built for tracking: work, appointments, study deadlines, family, and content creation, all in one place.
 
 
-**[Open the live planner →](gloriaokojie.github.io/my-planner)** 
+**[Open the live planner →](yosireglobal.github.io/my-planner)** 
 
 ---
 
