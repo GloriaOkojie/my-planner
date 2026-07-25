@@ -2,14 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My Planner</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0081c6">
-<link rel="apple-touch-icon" href="icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Planner">
 <style>
   :root{
     --work: #f4e0d9;
@@ -604,7 +597,7 @@ function addEntry(){
   for(let i = 0; i < weeks; i++){
     const d = new Date(base);
     d.setDate(d.getDate() + i * 7);
-    const dateStr = d.toISOString().slice(0,10);
+    const dateStr = toDateStr(d.getFullYear(), d.getMonth(), d.getDate());
     entries.push({ id: idCounter++, date: dateStr, time, activity, category, location, notes });
   }
 
@@ -1034,15 +1027,6 @@ renderIdeas();
 renderChecklist();
 if(!selectedDate) selectedDate = toDateStr(calYear, calMonth, new Date().getDate());
 renderEntries();
-
-if('serviceWorker' in navigator){
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js').catch((err) => {
-      console.error('Service worker registration failed:', err);
-    });
-  });
-}
-
 </script>
 
 </body>
